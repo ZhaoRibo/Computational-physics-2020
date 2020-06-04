@@ -15,6 +15,10 @@
 *.syn
 *.gz
 *.tex
+learning/
+*.vscode
+.vscode/
+__pycache__/
 
 ## Intermediate documents:
 *.dvi
