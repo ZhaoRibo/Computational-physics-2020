@@ -19,6 +19,7 @@ learning/
 *.vscode
 .vscode/
 __pycache__/
+*.txt
 
 ## Intermediate documents:
 *.dvi
