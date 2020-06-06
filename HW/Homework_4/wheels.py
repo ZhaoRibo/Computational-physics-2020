@@ -25,11 +25,17 @@ class Matrix(object):
 
     def __getitem__(self, index):
         """索引读取重载"""
-        return self.matrix[index]
+        if self.col == 1:
+            return self.matrix[index][0]
+        else:
+            return self.matrix[index]
 
     def __setitem__(self, key, value):
         """索引赋值重载"""
-        self.matrix[key] = value
+        if self.col == 1:
+            self.matrix[key][0] = value
+        else:
+            self.matrix[key] = value
 
     def get_row(self, n):
         """获得第n行"""
@@ -90,7 +96,7 @@ class Matrix(object):
 
     def __pos__(self):
         """正号"""
-        return Matrix(self)
+        return Matrix(self.matrix)
 
     def __neg__(self):
         """负号"""
@@ -235,6 +241,144 @@ def diagonal_mat(dia_list):
     return mat
 
 
+"""***************************
+    * 向量类定义于向量运算 *
+************************** * """
+
+
+def zero_vec(dim):
+    """用于初始化零矩阵"""
+    assert isinstance(dim, int), "Type of input is not int."
+    
+    vec = [[0] for i in range(dim)]
+    return vec
+
+
+class Vector(Matrix):
+    """
+    简单定义向量类，继承Matrix，视作n*1矩阵
+    """
+    def __init__(self, origin_list=[], n=-1):
+        if n == -1:
+            assert isinstance(origin_list, list), "Input is not a list."
+
+            if isinstance(origin_list[0], list):
+                num = len(origin_list[0])
+                if num == 1:
+                    Matrix.__init__(self, origin_list)
+                elif len(origin_list) == 1:
+                    right_list = [[origin_list[0][i]] for i in range(num)]
+                    Matrix.__init__(self, right_list)
+                else:
+                    assert False, "Input list doesn't describe a vector."
+            else:
+                num = len(origin_list)
+                right_list = [[origin_list[i]] for i in range(num)]
+                Matrix.__init__(self, right_list)
+        elif origin_list == []:
+            assert isinstance(n, int), "Input 'n' must be 'int'."
+            assert n >= 0, "'n' must not smaller than zero."
+            Matrix.__init__(self, zero_mat(n, 1))
+        else:
+            assert isinstance(origin_list, list), "Input is not a list."
+
+            if isinstance(origin_list[0], list):
+                num = len(origin_list[0])
+                if num == 1:
+                    assert n == len(origin_list), "'n' is not equal with the length of 'origin_list'."
+                    Matrix.__init__(self, origin_list)
+                elif len(origin_list) == 1:
+                    assert n == num, "'n' is not equal with the length of 'origin_list'."
+                    right_list = [[origin_list[0][i]] for i in range(num)]
+                    Matrix.__init__(self, right_list)
+                else:
+                    assert False, "Input list doesn't describe a vector."
+            else:
+                num = len(origin_list)
+                assert n == num, "'n' is not equal with the length of 'origin_list'."
+                right_list = [[origin_list[i]] for i in range(num)]
+                Matrix.__init__(self, right_list)
+        self.dim = self.row
+
+    def __getitem__(self, index):
+        """索引读取重载"""
+        return self.matrix[index][0]
+
+    def __setitem__(self, key, value):
+        """索引赋值重载"""
+        self.matrix[key][0] = value
+
+    def Norm(self, ord=2):
+        norm = 0
+        if ord == 1:
+            for i in range(self.row):
+                norm += abs(self.matrix[i][0])
+        elif ord == 2:
+            for i in range(self.row):
+                norm += self.matrix[i][0]** 2
+            norm = norm ** 0.5
+        elif ord == -1:
+            for i in range(self.row):
+                if abs(self.matrix[i][0]) > norm:
+                    norm = abs(self.matrix[i][0])
+        else:
+            assert False, "arg:ord : 1，2，-1(infinite)."
+        return norm
+
+    def __add__(self, other):
+        assert isinstance(other, Vector), "第二个实例不是Vector"
+        assert other.dim == self.dim, "两矢量维度不一样"
+
+        add_vec = Vector(zero_vec(self.dim))
+        for i in range(self.row):
+            add_vec.matrix[i][0] = self.matrix[i][0] + other.matrix[i][0]
+        return add_vec
+
+    def __radd__(self, other):
+        return self + other
+
+    def __sub__(self, other):
+        assert isinstance(other, Vector), "第二个实例不是Vector"
+        assert other.dim == self.dim, "两矢量维度不一样"
+
+        add_vec = Vector(zero_vec(self.dim))
+        for i in range(self.row):
+            add_vec.matrix[i][0] = self.matrix[i][0] - other.matrix[i][0]
+        return add_vec
+
+    def __rsub__(self, other):
+        assert isinstance(other, Vector), "第二个实例不是Vector"
+        assert other.dim == self.dim, "两矢量维度不一样"
+
+        add_vec = Vector(zero_vec(self.dim))
+        for i in range(self.row):
+            add_vec.matrix[i][0] = other.matrix[i][0] - self.matrix[i][0]
+        return add_vec
+
+    def __pos__(self):
+        return Vector(self.matrix)
+
+    def __neg__(self):
+        vec = Vector(zero_vec(self.dim))
+        for i in range(self.dim):
+            vec.matrix[i][0] = -self.matrix[i][0]
+        return vec
+
+    def __mul__(self, other):
+        #if isinstance(other, int) | isinstance(other, float):
+        #    mul_vec = Vector(zero_vec(self.dim))
+        pass
+    
+    def __rmul__(self, other):
+        pass
+
+    def __eq__(self, other):
+        pass
+
+    def T(self):
+        pass
+
+
 """
 线性方程组求解
 直接求解
@@ -373,4 +517,3 @@ def Cholesky(M):
             for k in range(j - 1):
                 M[i][j] = M[i][j] - M[i][k] * M[j][k]
             M[i][j] = M[i][j] / M[j][j]
-

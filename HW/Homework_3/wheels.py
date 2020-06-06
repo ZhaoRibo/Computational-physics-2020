@@ -90,7 +90,7 @@ class Matrix(object):
 
     def __pos__(self):
         """正号"""
-        return Matrix(self)
+        return Matrix(self.matrix)
 
     def __neg__(self):
         """负号"""
